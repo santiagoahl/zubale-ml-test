@@ -1,4 +1,3 @@
-# TODO: Pydantic schemas for /predict
 from pydantic import BaseModel, Field
 from typing import Dict, Optional, Literal, Union
 
@@ -14,7 +13,7 @@ class PredictModel(BaseModel):
     support_tickets_30d: Optional[Union[int, float]]
     discount_pct: Optional[Union[int, float]]
     payment_failures_90d: Optional[Union[int, float]]
-    downtime_hours_30d: Optional[Union[int, float]]
+    downtime_hours_30d: Optional[Union[int, float]] = 0.0
 
     class Config:
         json_schema_extra = {
