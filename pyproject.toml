@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "churn-model"
+version = "0.1.0"
+description = "Train, Serve and Monitor Predictive Models for Customer churn"
+authors = ["santiagoahl <santiago.ahumada.1@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+black = "^25.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
