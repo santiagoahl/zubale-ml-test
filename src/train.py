@@ -1,134 +1,219 @@
 # TODO: Implement training script.
 # CLI: python -m src.train --data data/customer_churn_synth.csv --outdir artifacts/
 
-from abc import ABC
-import argparse  # Read CLI params
+# SHAP for feature importance
+import shap
+from shap import KernelExplainer, Explainer
+
+# Data and CLI management
+import os
+import json
+import joblib
+import pickle as pkl
+import argparse 
 import pandas as pd
+import matplotlib.pyplot as plt
+
+# ML
+from abc import ABC  # Abstract Classes
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.pipeline import Pipeline  # Inference inference_pipeline
+from sklearn.compose import ColumnTransformer  # feature inference_pipeline
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.metrics import r2_score, roc_auc_score, precision_recall_curve
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
-from sklearn.model_selection import train_val_split
-from sklearn.preprocessing import StandardScaler
 
+# Config vars
 RANDOM_SEED = 42
 OUTPUT_VAR = "churned"
-MODELS = {"logistic_reg": LogisticRegressionCV(), "xgboost": XGBClassifier(), "random_forest": RandomForestClassifier(), "lgb": LGBMClassifier()}
+MODELS = {
+    "logistic_reg": LogisticRegressionCV(),
+    "xgboost": XGBClassifier(),
+    "random_forest": RandomForestClassifier(),
+    "lgb": LGBMClassifier(),
+}
 
-class MLModelTrainer(ABC):
-    def __init__(self, data_path, output_dir, model = "logistic_reg"):
-        self.data_path: str = data_path  # TODO: Add try except
-        self.input_data: pd.DataFrame = pd.read_csv(self.data_path)
-        self.output_dir: str = output_dir
-        self.target_var: str = OUTPUT_VAR
-        self.model = MODELS[model]  # Initialize Classification Model
-        self.arrays: tuple = None
-        self.input_cols = [col for col in self.input_data if col != self.target_var]
-        self.ouput_cols = [col for col in self.input_data if col == self.target_var]
-        self.metrics = {}
-        self.scaler = None 
+#  Abstract Class for ML Pipeline tasks (split, feature pipeline, inference, train, etc.) 
+class MLClassifier(ABC):
+    def __init__(self):
+        pass
 
     def split_data(self) -> None:
+
         X = self.input_data[self.input_cols]
         y = self.input_data[self.ouput_cols]
 
-        X_train, X_val, y_train, y_val = train_val_split(
-            X, y, val_size=0.33, random_state=RANDOM_SEED
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=0.33, random_state=RANDOM_SEED
         )
 
         self.arrays = {
             "X_train": X_train,
             "X_val": X_val,
-            "y_train": y_train,
-            "y_val": y_val,
+            "y_train": y_train.values.ravel(),
+            "y_val": y_val.values.ravel(),
         }
 
     def save_artifacts(self) -> None:
         try:
-            assert self.model != None
+            assert self.model is not None
         except:
             raise AssertionError(
-                f"There is no ML model trained, please try to run .train() before saving artifacts."
+                "There is no ML model trained, please try to run .train() before saving artifacts."
             )
-        # TODO: save model.pkl, feature_pipeline.pkl, feature_importances.csv 
-    
-    def preprocess_data(self):
-        X_train,  X_val,  y_train,  y_val = self.arrays
-        
-        # Process categorical features
-        X_train["contract_type"] = X_train["contract_type"].map({"Monthly": 0, "Annual": 1})
-        X_train["autopay"] = X_train["autopay"].map({"No": 0, "Yes": 1})
-        X_train["is_promo_user"] = X_train["is_promo_user"].map({"No": 0, "Yes": 1})
 
-        # Scale all variables
-        self.scaler = StandardScaler()
-        self.scaler.fit_transform(X_train)
-        self.scaler.transform(X_val)  # Just to avoid data leakage
+        X_val = self.arrays["X_val"]
 
-        self.arrays = (X_train,  X_val,  y_train,  y_val)
-    
-    def hpo(self):
+        # 1. Save Model and feature_pipeline
+        joblib.dump(self.model, self.artifact_paths["model"])
+        joblib.dump(self.feature_pipeline, self.artifact_paths["feature_pipeline"])
+
+        # 2. Compute and save feature importance with SHAP
+        X_val_sample = X_val.iloc[: self.shap_n_samples]
+        X_val_enc = pd.DataFrame(
+            self.inference_pipeline.named_steps["features"].transform(X_val_sample),
+            columns=self.inference_pipeline.named_steps[
+                "features"
+            ].get_feature_names_out(),
+        )
+
+        self.shap_explainer = Explainer(
+            self.inference_pipeline.named_steps["model"], X_val_enc
+        )
+        self.shap_values = self.shap_explainer(X_val_enc)
+
+        shap_df = pd.DataFrame(self.shap_values.values, columns=X_val_enc.columns)
+        shap_df.to_csv(self.artifact_paths["feature_importances"], index=False)
+
+        shap.summary_plot(self.shap_values.values, X_val_enc, show=False)
+
+        fig = plt.gcf()
+        fig.suptitle("SHAP Summary Plot - Customer Churn Model", fontsize=16, y=1.02)
+        plot_path = os.path.join(self.output_dir, "shap_summary_plot.png")
+        fig.savefig(plot_path, dpi=300, bbox_inches="tight")
+        plt.close(fig)
+
+    def preprocess_data(self) -> None:
+        X_train = self.arrays["X_train"]
+        X_val = self.arrays["X_val"]
+        y_train = self.arrays["y_train"]
+        y_val = self.arrays["y_val"]
+
+        self.cat_features = [
+            "plan_type",
+            "contract_type",
+            "autopay",
+            "is_promo_user",
+        ]
+        self.num_features = [
+            col for col in self.input_cols if col not in self.cat_features
+        ]
+
+        self.feature_pipeline = ColumnTransformer(
+            [
+                ("cat", OneHotEncoder(handle_unknown="ignore"), self.cat_features),
+                ("num", self.scaler, self.num_features),
+            ]
+        )
+
+    def hpo(self) -> None:
         pass
-        
-    def log_metrics(self) -> None:
-        X_train,  X_val,  y_train,  y_val = self.arrays
-        y_hat = self.model.predict(X_val, y_val)
 
-        return {
+    def log_metrics(self) -> None:
+        X_train = self.arrays["X_train"]
+        X_val = self.arrays["X_val"]
+        y_train = self.arrays["y_train"]
+        y_val = self.arrays["y_val"]
+        y_hat = self.inference_pipeline.predict(X_val)
+
+        precision, recall, thresholds = precision_recall_curve(y_val, y_hat)
+
+        metrics = {
             "r2": r2_score(y_val, y_hat),
-            "roc_auc":  roc_auc_score(y_val, y_hat),
-            "roc_pr":  precision_recall_curve(y_val, y_hat),
+            "roc_auc": roc_auc_score(y_val, y_hat),
+            "precision": precision.tolist(),
+            "recall": recall.tolist(),
+            "thresholds": thresholds.tolist(),
         }
 
+        with open(self.artifact_paths["metrics"], "w") as f:
+            json.dump(metrics, f)
 
-class ChurnModelTrainer(MLModelTrainer):
-    def __init__(self):
-        super().__init__()
+
+#  Subclass for customer churn use case
+class ChurnModelTrainer(MLClassifier):
+    def __init__(self, data_path, output_dir, model="logistic_reg"):
+        self.data_path: str = data_path  # TODO: Add try except
+        self.input_data: pd.DataFrame = pd.read_csv(self.data_path)
+        self.output_dir: str = output_dir
+        self.target_var: str = OUTPUT_VAR
+        self.model = MODELS[model]  # Initialize Classification Model
+        self.arrays: dict = None
+        self.input_cols = [col for col in self.input_data if col != self.target_var]
+        self.ouput_cols = [col for col in self.input_data if col == self.target_var]
+        self.metrics = {}
+        self.scaler = StandardScaler()
+        self.feature_pipeline = None
+        self.inference_pipeline = None
+        self.artifact_paths = {
+            "model": "model.pkl",
+            "feature_pipeline": "feature_pipeline.pkl",
+            "feature_importances": "feature_importances.csv",
+            "metrics": "metrics.json",
+        }
+        self.artifact_paths = {
+            key: os.path.join(self.output_dir, value)
+            for key, value in self.artifact_paths.items()
+        }
+        self.features: list = []
+        self.cat_features: list = []
+        self.num_features: list = []
+        self.shap_explainer = None
+        self.shap_values = None
+        self.shap_n_samples = 100
+        self.feature_pipeline = None
+        self.inference_pipeline = None
 
     def train(self):
-        X_train,  X_val,  y_train,  y_val = self.arrays
-        self.model.fit(X_train, y_train)
+        X_train = self.arrays["X_train"]
+        X_val = self.arrays["X_val"]
+        y_train = self.arrays["y_train"]
+        y_val = self.arrays["y_val"]
+
+        self.feature_pipeline.fit(X_train)
+        self.inference_pipeline = Pipeline(
+            [
+                ("features", self.feature_pipeline),
+                ("model", self.model),
+            ]
+        )
+        self.inference_pipeline.fit(X_train, y_train)
 
 
 def main() -> None:
     """
-    Description.
-
-    Parameters
-    ----------
-    arg1 : type
-        Description
-    arg2 : type
-        Description
-    arg3 : type
-        Description
-
-    Returns:
-        type:
-
-    Example:
-        >>> ('arg1', 'arg2')
-        'output'
+    Run Training Inference Pipeline
     """
-
     # Read CLI params
-    parser = argparse.ArgumentParser(description="Training Pipeline")
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Train Churn Model")
     parser.add_argument("--data", type=str, required=True, help="Path to CSV file")
-    data, output_dir = args.data, args.outdir
+    parser.add_argument("--outdir", type=str, required=True, help="Path to CSV file")
+    args = parser.parse_args()
+    data, output_dir = (args.data, args.outdir)
 
-    # Initialize ML Personalized Class
+    # Initialize ML Personalized Class for churn
     model_trainer = ChurnModelTrainer(data, output_dir)
 
-    # Run Training Pipeline
+    # Run Training inference_pipeline
     model_trainer.split_data()
     model_trainer.preprocess_data()
     model_trainer.train()
-    model_trainer.log_metrics()
+    model_trainer.log_metrics()  
     model_trainer.save_artifacts()
-
-    return None
 
 
 if __name__ == "__main__":
