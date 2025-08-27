@@ -1,4 +1,3 @@
-# TODO: .
 # Endpoints: GET /health, POST /predict
 
 from fastapi import FastAPI, HTTPException
