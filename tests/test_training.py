@@ -1,5 +1,4 @@
-# TODO: Train, assert artifacts exist and ROC-AUC threshold
-import pytest
+# run test with PYTHONPATH=. pytest -v tests/test_training.py
 from src.train import train
 import os
 import json
