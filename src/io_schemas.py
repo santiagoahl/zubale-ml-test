@@ -14,7 +14,7 @@ class PredictModel(BaseModel):
     support_tickets_30d: Union[int, float]
     discount_pct: Union[int, float]
     payment_failures_90d: Union[int, float]
-    downtime_hours_30d: Union[int, float]
+    downtime_hours_30d: Optional[Union[int, float]] = 0.0
 
     class Config:
         json_schema_extra = {

@@ -1,0 +1,35 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+notebooks/
+
+# Environment variables
+.env
+
+# Distribution / packaging
+*.egg-info/
+.eggs/
+dist/
+build/
+
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Generated artifacts
+artifacts/
