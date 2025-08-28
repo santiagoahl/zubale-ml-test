@@ -1,24 +1,21 @@
 # TODO: Boot API, call /predict using tests/sample.json
 
 import pytest
-
-import pytest
 from fastapi.testclient import TestClient
 import json
-from src.app import app  # Importamos la app de FastAPI
+from src.app import app  # Import the FastAPI app
 
 INFERENCE_SAMPLE_FILE = "tests/sample.json"
 
 # 1. Create testing client for inference
 client = TestClient(app)
 
-
 # 2. Load sample data
 # Read JSON file
 with open(INFERENCE_SAMPLE_FILE, "r") as f:
     sample_data = json.load(f)
 
-# 3. Definimos la función de prueba
+# 3. Define the test function
 def test_predict_endpoint_returns_valid_prediction():
     """
     Test whether /predict processes data and returns predictions
@@ -38,7 +35,6 @@ def test_predict_endpoint_returns_valid_prediction():
         assert "churn_likelihood" in response_json
         
         # The probability ('churn_likelihood') must be a number between 0 and 1
-
         assert 0.0 <= response_json["churn_likelihood"] <= 1.0
         
         # The class ('churn_class') must be 0 or 1
