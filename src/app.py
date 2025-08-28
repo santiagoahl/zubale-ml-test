@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-# TODO: .
 # Endpoints: GET /health, POST /predict
 
 from fastapi import FastAPI, HTTPException
@@ -55,7 +53,3 @@ def post_predict(customer_data: PredictModel):
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-=======
-# TODO: Implement FastAPI app for churn inference.
-# Endpoints: GET /health, POST /predict
->>>>>>> 775fb3b (Initial commit)
