@@ -21,6 +21,8 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
 
 # Local modules
 from .metrics import save_metrics
@@ -178,27 +180,44 @@ class ChurnModelTrainer(MLClassifier):
         self.inference_pipeline.fit(X_train, y_train)
 
 
-def main() -> None:
-    """
-    Run Training Inference Pipeline
-    """
-    # Read CLI params
-    parser = argparse.ArgumentParser(description="Train Churn Model")
-    parser.add_argument("--data", type=str, required=True, help="Path to CSV file")
-    parser.add_argument("--outdir", type=str, required=True, help="Path to CSV file")
-    args = parser.parse_args()
-    data, output_dir = (args.data, args.outdir)
 
+def train(data: str, output_dir: str) -> None:
+    """
+    Run training inference pipeline.
+
+    Parameters
+    ----------
+    data : str
+        Path to customer data
+    output_dir : str
+        Path to artifacts dir, used to save the feature pipeline, trained model and shap values
+    
+    Returns:
+        None: saves artifacts in output dir
+    """
     # Initialize ML Personalized Class for churn
     model_trainer = ChurnModelTrainer(data, output_dir)
 
-    # Run Training inference_pipeline
+    # Run Training Inference Pipeline
     model_trainer.split_data()
     model_trainer.preprocess_data()
     model_trainer.train()
     model_trainer.log_metrics()  
     model_trainer.save_artifacts()
 
+def train_cli():
+    """
+    Run Training Inference Pipeline
+    """
+    # Read CLI params: path to input data and artifacts dir
+    parser = argparse.ArgumentParser(description="Train Churn Model")
+    parser.add_argument("--data", type=str, required=True, help="Path to CSV file")
+    parser.add_argument("--outdir", type=str, required=True, help="Path to CSV file")
+    args = parser.parse_args()
+    data, output_dir = (args.data, args.outdir)
+    
+    # Run training
+    train(data, output_dir) 
 
 if __name__ == "__main__":
-    main()
+    train_cli()
