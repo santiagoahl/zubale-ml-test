@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CLI: python -m src.train --data data/customer_churn_synth.csv --outdir artifacts/
 
 # SHAP for feature importance
@@ -217,3 +218,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+=======
+# TODO: Implement training script.
+# CLI: python -m src.train --data data/customer_churn_synth.csv --outdir artifacts/
+>>>>>>> 775fb3b (Initial commit)
