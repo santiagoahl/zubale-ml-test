@@ -20,11 +20,11 @@ from sklearn.pipeline import Pipeline  # Inference inference_pipeline
 from sklearn.compose import ColumnTransformer  # feature inference_pipeline
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import r2_score, roc_auc_score, precision_recall_curve
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
+from .metrics import save_metrics
 
 # Config vars
 RANDOM_SEED = 42
@@ -129,18 +129,8 @@ class MLClassifier(ABC):
         y_val = self.arrays["y_val"]
         y_hat = self.inference_pipeline.predict(X_val)
 
-        precision, recall, thresholds = precision_recall_curve(y_val, y_hat)
-
-        metrics = {
-            "r2": r2_score(y_val, y_hat),
-            "roc_auc": roc_auc_score(y_val, y_hat),
-            "precision": precision.tolist(),
-            "recall": recall.tolist(),
-            "thresholds": thresholds.tolist(),
-        }
-
-        with open(self.artifact_paths["metrics"], "w") as f:
-            json.dump(metrics, f)
+        # Compute performance metrics on val
+        save_metrics(y_hat, y_val, self.artifact_paths["metrics"])
 
 
 #  Subclass for customer churn use case
