@@ -15,16 +15,16 @@ import matplotlib.pyplot as plt
 
 # ML
 from abc import ABC  # Abstract Classes
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline  # Inference inference_pipeline
-from sklearn.compose import ColumnTransformer  # feature inference_pipeline
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
+
+# Local modules
 from .metrics import save_metrics
+from .features import build_feature_pipeline
 
 # Config vars
 RANDOM_SEED = 42
@@ -112,12 +112,7 @@ class MLClassifier(ABC):
             col for col in self.input_cols if col not in self.cat_features
         ]
 
-        self.feature_pipeline = ColumnTransformer(
-            [
-                ("cat", OneHotEncoder(handle_unknown="ignore"), self.cat_features),
-                ("num", self.scaler, self.num_features),
-            ]
-        )
+        self.feature_pipeline = build_feature_pipeline(OneHotEncoder(handle_unknown="ignore"), self.scaler, self.cat_features, self.num_features)
 
     def hpo(self) -> None:
         pass

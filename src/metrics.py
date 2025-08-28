@@ -1,5 +1,3 @@
-# TODO: Compute ROC-AUC, PR-AUC, accuracy
-
 import subprocess
 from typing import Union, List
 import numpy as np
@@ -21,8 +19,7 @@ def compute_git_sha() -> str:
     None
     
     Returns:
-        str:
-    
+        str: git sha hash
     """
 
     try:
@@ -72,4 +69,4 @@ def save_metrics(
     }
 
     with open(output_path, "w") as f:
-        json.dump(output_path, f)
+        json.dump(metrics, f)
