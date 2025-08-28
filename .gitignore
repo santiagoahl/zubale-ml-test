@@ -30,6 +30,3 @@ build/
 .coverage
 htmlcov/
 .pytest_cache/
-
-# Generated artifacts
-artifacts/
