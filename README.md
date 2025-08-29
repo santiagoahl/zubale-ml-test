@@ -4,6 +4,7 @@ This Mini-Prod Challenges is part of a tech test @ Zubale for a ML Engineer post
 
 ---
 
+![GCP Architecture](https://raw.githubusercontent.com/santiagoahl/zubale-ml-test/main/GCP%20Architecture%20for%20Zubale%20Product.drawio.png)
 
 ## **🛠️ Setup**
 
