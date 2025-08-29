@@ -3,6 +3,7 @@
 This Mini-Prod Challenges is part of a tech test @ Zubale for a ML Engineer postition. It is made to code, build, test, deploy and test a **Customer Churn Predictive Model** using Python, Pytest, FastAPI, Docker and GCP.
 
 ---
+## GCP Architecture
 
 ![GCP Architecture](https://raw.githubusercontent.com/santiagoahl/zubale-ml-test/main/GCP%20Architecture%20for%20Zubale%20Product.drawio.png)
 
