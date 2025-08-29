@@ -109,7 +109,7 @@ def run_react_agent(metrics_path: str, drift_path: str, agent_plan_path: str) ->
 
 def run_agent_monitor_cli():
     """
-    Compute KS tests for data shift
+    Compute LLM Agent Analysis for action plan
     """
     # Read CLI params: path to input data and artifacts dir
     parser = argparse.ArgumentParser(description="Train Churn Model")
