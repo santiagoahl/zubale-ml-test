@@ -1,0 +1,14 @@
+...
+name: Run hello world script 
+
+on: [push]  # Trigger event
+
+jobs:
+
+  hello-world: 
+    runs-on: ubuntu-latest  # How will the github actions runner run
+    steps:
+      - name: Define Github Actions version to use
+        uses: actions/checkout@v2
+      - run: python -m src.hello_world
+...
