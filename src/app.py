@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
-from .io_schemas import PredictModel
+from .io_schemas import PredictModel, ActionPlanModel
 import joblib
 import pandas as pd
 
@@ -53,3 +53,19 @@ def post_predict(customer_data: PredictModel):
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+
+@app.post("/monitor")
+def post_action_plan(action_plan: ActionPlanModel):
+    """
+    Path Operation to Save action plan based on drift analysis
+
+    Parameters
+    ----------
+    action_plan: ActionPlanModel
+        Dictionary with the model status, findings and actions to take
+    
+    Returns:
+        dict: Action plan
+    """
+    return action_plan

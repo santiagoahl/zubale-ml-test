@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict, Optional, Literal, Union
+from typing import Dict, Optional, Literal, Union, List
 
 class PredictModel(BaseModel):
     plan_type: Optional[Literal["Basic","Standard","Pro"]]
@@ -32,3 +32,16 @@ class PredictModel(BaseModel):
             "downtime_hours_30d": 2.12
             }
         } 
+
+
+class ActionPlanModel(BaseModel):
+    status: Literal["healthy", "warn", "critical"] = Field(..., description="Overall status of the monitored system")
+    findings: List[str] = Field(default_factory=list, description="List of detected issues or observations")
+    actions: List[Literal[
+        "open_incident",
+        "trigger_retraining",
+        "roll_back_model",
+        "raise_thresholds",
+        "do_nothing"
+    ]] = Field(default_factory=list, description="Actions to take based on findings")
+    page_oncall: Optional[bool] = Field(default=False, description="Whether to page the on-call engineer")
