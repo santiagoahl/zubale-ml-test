@@ -1,4 +1,3 @@
-...
 name: hello-world
 
 on: [push]  # Trigger event
@@ -13,4 +12,3 @@ jobs:
       
       - name: Run Python Script
         run: python -m src.hello_world
-...
