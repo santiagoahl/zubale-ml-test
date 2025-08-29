@@ -2,18 +2,18 @@
     "threshold": 0.2,
     "overall_drift": true,
     "features": {
-        "churned": 1.1102230246251565e-16,
-        "payment_failures_90d": 1.1102230246251565e-15,
-        "add_on_count": 0.28842844428893044,
-        "avg_latency_ms": 1.0,
-        "support_tickets_30d": 0.9999999991114477,
-        "is_promo_user": 0.0016416989845061992,
-        "downtime_hours_30d": 0.9999999999999973,
-        "monthly_usage_gb": 0.49568369544818935,
-        "discount_pct": 0.9999979937847788,
-        "contract_type": 0.04657510091691432,
-        "plan_type": 0.005908319901668716,
         "tenure_months": 0.8018505542975434,
-        "autopay": 0.2734339230417841
+        "downtime_hours_30d": 0.9999999999999973,
+        "contract_type": 0.04657510091691432,
+        "support_tickets_30d": 0.9999999991114477,
+        "autopay": 0.2734339230417841,
+        "churned": 1.1102230246251565e-16,
+        "plan_type": 0.005908319901668716,
+        "discount_pct": 0.9999979937847788,
+        "avg_latency_ms": 1.0,
+        "is_promo_user": 0.0016416989845061992,
+        "add_on_count": 0.28842844428893044,
+        "payment_failures_90d": 1.1102230246251565e-15,
+        "monthly_usage_gb": 0.49568369544818935
     }
 }

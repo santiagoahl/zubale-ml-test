@@ -1,0 +1,12 @@
+{
+    "status": "critical",
+    "findings": [
+        "Significant drop in ROC-AUC and PR-AUC",
+        "High latency observed consistently"
+    ],
+    "actions": [
+        "open_incident",
+        "trigger_retraining"
+    ],
+    "page_oncall": true
+}

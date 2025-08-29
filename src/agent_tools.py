@@ -1,7 +1,9 @@
+import yaml
 import json
 from pathlib import Path
 from src.io_schemas import ActionPlanModel
 from src.app import post_action_plan
+
 
 
 def json_reader(file_path: str) -> dict:
@@ -12,12 +14,12 @@ def json_reader(file_path: str) -> dict:
     ----------
     file_path : str
         Path to the JSON file to read.
-    
+
     Returns
     -------
     dict
         Dictionary with the contents of the JSON file.
-    
+
     Example
     -------
     >>> json_reader("artifacts/drift_report.json")
@@ -27,7 +29,7 @@ def json_reader(file_path: str) -> dict:
     if not path.exists():
         raise FileNotFoundError(f"JSON file not found: {file_path}")
     with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        return [json.loads(line) for line in f if line.strip()]
 
 
 def json_saver(data: dict, file_path: str, indent: int = 4) -> None:
@@ -42,11 +44,11 @@ def json_saver(data: dict, file_path: str, indent: int = 4) -> None:
         Path to the output JSON file.
     indent : int, optional
         Number of spaces to use as indentation (default is 4).
-    
+
     Returns
     -------
     None
-    
+
     Example
     -------
     >>> json_saver({"status": "warn"}, "artifacts/action_plan.json")
@@ -55,6 +57,33 @@ def json_saver(data: dict, file_path: str, indent: int = 4) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=indent)
+
+
+def yaml_saver(data: dict, file_path: str, default_flow_style: bool = False) -> None:
+    """
+    Save a dictionary as a YAML file.
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary to save.
+    file_path : str
+        Path to the output YAML file.
+    default_flow_style : bool, optional
+        Whether to use block style (False) or flow style (True) in YAML (default is False).
+
+    Returns
+    -------
+    None
+
+    Example
+    -------
+    >>> yaml_saver({"status": "warn"}, "artifacts/action_plan.yaml")
+    """
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.dump(data, f, default_flow_style=default_flow_style, sort_keys=False)
 
 
 def action_plan_poster(action_plan: ActionPlanModel) -> dict:
