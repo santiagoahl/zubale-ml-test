@@ -9,6 +9,8 @@ jobs:
     
     steps:
       - name: Define Github Actions version to use
-      - uses: actions/checkout@v2
-      - run: python -m src.hello_world
+        uses: actions/checkout@v2
+      
+      - name: Run Python Script
+        run: python -m src.hello_world
 ...
