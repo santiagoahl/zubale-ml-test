@@ -4,8 +4,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      # - name: Set up Python
-      # - name: Install deps
-      # - name: Run tests
-      # - name: Build Docker
+      - uses: actions/checkout@
+      
+      - name: Set up Python
+        run: sudo apt update
+        run: sudo apt install -y software-properties-common
+        run: sudo add-apt-repository ppa:deadsnakes/ppa
+        run: sudo apt update
+        run: sudo apt install -y python3.12 python3.12-venv python3.12-dev
+        run: python3.12 --version
+
+      - name: Set up Poetry for dependency management
+        run: sudo apt update
+        run: sudo apt install pipx
+        run: pipx install poetry
+
+      - name: Install deps and activate virtual env
+        run: poetry install
+        run: poetry shell
+
+      - name: Run tests
+        run: python -m pytest
+
+      #- name: Build Docker
+
+
