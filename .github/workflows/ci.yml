@@ -7,24 +7,28 @@ jobs:
       - uses: actions/checkout@
       
       - name: Set up Python
-        run: sudo apt update
-        run: sudo apt install -y software-properties-common
-        run: sudo add-apt-repository ppa:deadsnakes/ppa
-        run: sudo apt update
-        run: sudo apt install -y python3.12 python3.12-venv python3.12-dev
-        run: python3.12 --version
+        run: |
+          sudo apt update
+          sudo apt install -y software-properties-common
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt update
+          sudo apt install -y python3.12 python3.12-venv python3.12-dev
+          python3.12 --version
 
       - name: Set up Poetry for dependency management
-        run: sudo apt update
-        run: sudo apt install pipx
-        run: pipx install poetry
+        run: |
+          sudo apt update
+          sudo apt install pipx
+          pipx install poetry
 
       - name: Install deps and activate virtual env
-        run: poetry install
-        run: poetry shell
+        run: | 
+          poetry install
+          poetry shell
 
       - name: Run tests
-        run: python -m pytest
+        run: |
+          python -m pytest
 
       #- name: Build Docker
 
