@@ -1,6 +1,6 @@
 # ===== Stage 1: Builder =====
 # This stage installs dependencies in an isolated environment.
-FROM python:3.12 as builder
+FROM python:3.12 AS builder
 
 # 1. Install Poetry
 # Used to manage the project dependencies.

@@ -29,6 +29,8 @@ jobs:
         run: |
           poetry run python -m pytest
 
-      #- name: Build Docker
-
+      - name: Build Docker
+        run: |
+          docker build -t customer-churn-app:latest .
+          docker run --name customer-churn-prod-container -p 8000:8000 customer-churn-app:latest
 
