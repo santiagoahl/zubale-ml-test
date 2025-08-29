@@ -6,9 +6,13 @@ from src.app import post_action_plan
 
 
 
-def json_reader(file_path: str) -> dict:
+import json
+from pathlib import Path
+
+
+def json_reader(file_path: str) -> dict | list:
     """
-    Read a JSON file and return its content as a dictionary.
+    Read a JSON file and return its content as a dictionary or a list of dictionaries.
 
     Parameters
     ----------
@@ -17,8 +21,8 @@ def json_reader(file_path: str) -> dict:
 
     Returns
     -------
-    dict
-        Dictionary with the contents of the JSON file.
+    dict | list
+        Dictionary with the contents of the JSON file or a list of dictionaries if it's a JSONL file.
 
     Example
     -------
@@ -28,8 +32,20 @@ def json_reader(file_path: str) -> dict:
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"JSON file not found: {file_path}")
+
     with open(path, "r", encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
+        content = f.read().strip()
+        # Attempt to load as a standard JSON object.
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            # If it fails, check for the specific 'Extra data' error which indicates JSONL.
+            if "Extra data" in str(e):
+                # Process as JSONL: parse each line as a separate JSON object.
+                return [json.loads(line) for line in content.splitlines() if line.strip()]
+            else:
+                # Re-raise the error if it's a different JSON decoding issue.
+                raise e 
 
 
 def json_saver(data: dict, file_path: str, indent: int = 4) -> None:

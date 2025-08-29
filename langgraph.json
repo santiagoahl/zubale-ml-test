@@ -1,0 +1,11 @@
+{
+  "dependencies": [
+    ".",
+    "langchain_openai"
+  ],
+  "graphs": {
+    "agent": "./src/agent_monitor.py:react_agent"
+  },
+  "env": ".env",
+  "python_version": "3.12"
+}
