@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Train, Serve and Monitor Predictive Models for Customer churn"
 authors = ["santiagoahl <santiago.ahumada.1@gmail.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -15,6 +16,8 @@ lightgbm = "^4.6.0"
 shap = "^0.48.0"
 matplotlib = "^3.10.5"
 pytest = "^8.4.1"
+fastapi = "^0.116.1"
+httpx = "^0.28.1"
 
 
 [build-system]
