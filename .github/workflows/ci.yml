@@ -24,11 +24,10 @@ jobs:
       - name: Install deps and activate virtual env
         run: | 
           poetry install
-          poetry shell
 
       - name: Run tests
         run: |
-          python -m pytest
+          poetry run python -m pytest
 
       #- name: Build Docker
 
