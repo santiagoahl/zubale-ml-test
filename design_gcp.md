@@ -3,6 +3,7 @@
 In order to save customer data, train the model, run inferences and monitor ML data distribution shift, I present the following architecture
 
 
+![GCP Architecture](https://raw.githubusercontent.com/santiagoahl/zubale-ml-test/main/GCP%20Architecture%20for%20Zubale%20Product.drawio.png)
 
 
 
